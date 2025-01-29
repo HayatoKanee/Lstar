@@ -6,18 +6,14 @@
 import re
 # A dummy example
 # Any binary string contain the substring 01
-# DUMMY_DFA = re.compile(r'^(0|1)*01(0|1)*$')
+DUMMY_DFA = re.compile(r'^(0|1)*01(0|1)*$')
 
 
-DUMMY_DFA = re.compile(r'^(11|00|(10|01)(11|00)(10|01))$')
+# DUMMY_DFA = re.compile(r'^(11|00|(10|01)(11|00)(10|01))$')
 
 def L_star(alphabet:list[str]):
-    # Using the DFA-learning convention
-    # QUESTION: Should I use Angluin's convention i.e. S and E ?
     Q = {""}
     T = {""}
-    # We probably want to store the result we already have queried instead of querying everytime
-    # Lets call it M for membership dictionary
     M = {}
     while True:
         make_consistent(Q, T, M, alphabet,membership_oracle)
@@ -35,7 +31,7 @@ def L_star(alphabet:list[str]):
                     Q.add(pref)
 
 
-def make_consistent(Q, T, M, alphabet,membership_oracle):
+def make_consistent(Q, T, M, alphabet,membership_oracle) -> None:
     while True:
         consistent = True
         q_list = list(Q)
@@ -60,14 +56,12 @@ def make_consistent(Q, T, M, alphabet,membership_oracle):
         if consistent:
             break
 
-
-# Just a toy implementation, I think returning a list of not closed row would be better
-def make_closed(Q, T, M,alphabet:list[str],membership_oracle) -> bool:
+def make_closed(Q, T, M,alphabet:list[str],membership_oracle) -> None:
     while True:
         closed = True
         # Using the definition here
         # for every q in Q and a in the alphabet,
-        # there is some q' in Q such that qa = to q'
+        # there is some q' in Q such that qa =QM q'
         for q in list(Q):  # We convert to list to avoid mutating during iteration
             for a in alphabet:
                 qa = q + a
@@ -82,7 +76,6 @@ def make_closed(Q, T, M,alphabet:list[str],membership_oracle) -> bool:
                 break
         if closed:
             break
-    return True
 
 
 def find_the_not_equivalent_test_word(v,w, M, T, membership_oracle):
@@ -168,6 +161,7 @@ def build_hypothesis_dfa(Q, T, M, alphabet):
 
     return {
         "num_states": len(states),
+        "alphabet": alphabet,
         "states": states,  # each index i is the representative prefix for state i
         "start_state": start_state,
         "accepting_states": accepting_states,
@@ -190,8 +184,6 @@ def find_counterexample(dfa, membership_oracle, alphabet, max_length=8):
         if len(s) < max_length:
             for a in alphabet:
                 queue.append(s + a)
-
-    # No mismatch found => no counterexample up to length max_length
     return None
 
 def dfa_accept(dfa, s):
