@@ -1,7 +1,7 @@
 # --- Main ---
 from EquivalenceOracle import *
 from LStarLearner import LStarLearner
-from MembershipOracle import MembershipOracle
+from MembershipOracle import RegexMembershipOracle
 import subprocess
 
 if __name__ == "__main__":
@@ -10,7 +10,7 @@ if __name__ == "__main__":
     alphabet = ["0", "1"]
 
     # Create oracles.
-    mo = MembershipOracle(regex)
+    mo = RegexMembershipOracle(regex)
     eo = WMethodEquivalenceOracle(mo, alphabet)
     # eo = BFSEquivalenceOracle(mo, alphabet)
     learner = LStarLearner(alphabet, mo, eo)
@@ -19,4 +19,4 @@ if __name__ == "__main__":
     dfa = learner.run()
     # dfa.write_dot("learned_dfa")
     dfa.write_png("learned_dfa")
-    print("Wrote to learned_dfa.png")
+    print("Wrote to learned_dfa.png") 
