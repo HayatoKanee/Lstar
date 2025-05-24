@@ -1,0 +1,11 @@
+digraph {
+	rankdir=LR
+	__start__ [shape=point]
+	0 [label="" shape=doublecircle]
+	1 [label=a shape=circle]
+	__start__ -> 0
+	0 -> 1 [label=a]
+	0 -> 1 [label=b]
+	1 -> 0 [label=a]
+	1 -> 0 [label=b]
+}

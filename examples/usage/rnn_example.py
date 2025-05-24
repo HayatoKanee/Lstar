@@ -12,11 +12,12 @@ to extract a DFA from a trained RNN. The process involves:
 """
 
 import time
-from DummyRNN import DummyRNN
-from RNNMembershipOracle import AnalyzingRNNMembershipOracle
-from EquivalenceOracle import WMethodEquivalenceOracle
-from LStarLearner import LStarLearner
 import re
+
+from rnn_adapters import DummyRNN
+from lstar.oracles import RNNMembershipOracle
+from lstar import WMethodEquivalenceOracle
+from lstar import LStarLearner
 
 
 def compare_models(learned_dfa, original_pattern, alphabet, test_strings=None):
@@ -92,7 +93,7 @@ def main():
     
     # Step 2: Create oracles
     print(f"\n--- Step 2: Setting up L* Framework ---")
-    membership_oracle = AnalyzingRNNMembershipOracle(rnn)
+    membership_oracle = RNNMembershipOracle(rnn)
     equivalence_oracle = WMethodEquivalenceOracle(
         membership_oracle, 
         alphabet,

@@ -1,8 +1,13 @@
 # --- Main ---
-from EquivalenceOracle import *
-from LStarLearner import LStarLearner
-from MembershipOracle import RegexMembershipOracle
 import subprocess
+import sys
+import os
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from lstar import *
+from lstar.oracles import RegexMembershipOracle
 
 if __name__ == "__main__":
     # Secret DFA: accepts binary strings containing the substring "01"

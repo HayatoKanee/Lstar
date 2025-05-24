@@ -7,11 +7,11 @@ both RegexMembershipOracle and RNNMembershipOracle to learn the same language.
 """
 
 import time
-from DummyRNN import DummyRNN
-from MembershipOracle import RegexMembershipOracle
-from RNNMembershipOracle import AnalyzingRNNMembershipOracle
-from EquivalenceOracle import WMethodEquivalenceOracle
-from LStarLearner import LStarLearner
+
+from rnn_adapters import DummyRNN
+from lstar.oracles import RegexMembershipOracle, RNNMembershipOracle
+from lstar import WMethodEquivalenceOracle
+from lstar import LStarLearner
 
 
 def learn_with_regex_oracle(pattern: str, alphabet: list):
@@ -44,7 +44,7 @@ def learn_with_rnn_oracle(pattern: str, alphabet: list):
     rnn = DummyRNN(alphabet, pattern)
     
     # Create oracles
-    membership_oracle = AnalyzingRNNMembershipOracle(rnn)
+    membership_oracle = RNNMembershipOracle(rnn)
     equivalence_oracle = WMethodEquivalenceOracle(membership_oracle, alphabet)
     
     # Run L* algorithm

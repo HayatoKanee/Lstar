@@ -1,7 +1,7 @@
 from typing import List, Set, Dict
 
-from DFA import DFA
-from MembershipOracle import MembershipOracle
+from .DFA import DFA
+from .oracles.MembershipOracle import MembershipOracle
 
 
 class ObservationTable:

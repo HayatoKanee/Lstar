@@ -1,137 +1,282 @@
-# L* Algorithm with RNN Integration
+# L* CLI: Extract DFAs from Any RNN
 
-This branch demonstrates how to use the L* active learning algorithm to extract DFA models from trained Recurrent Neural Networks (RNNs). This is particularly useful for understanding what language patterns an RNN has learned and for formal verification purposes.
+**A powerful command-line tool that uses the L* active learning algorithm to extract interpretable Deterministic Finite Automata (DFA) from any type of Recurrent Neural Network.**
 
-## Overview
+Transform your black-box RNNs into understandable, formal models with a single command.
 
-The L* algorithm can learn regular languages by querying a membership oracle and an equivalence oracle. In this implementation, we've extended the framework to work with RNNs as black-box models, enabling automatic extraction of finite automata that approximate the language recognized by the neural network.
+## 🎯 What This Tool Does
 
-## New Components
+The L* CLI tool takes **any** trained RNN and automatically learns an equivalent DFA that captures the language patterns the RNN has learned. This enables:
 
-### 1. DummyRNN (`DummyRNN.py`)
+- **Neural Network Interpretability**: Understand what your RNN actually learned
+- **Formal Verification**: Convert neural networks to verifiable automata
+- **Pattern Discovery**: Extract explicit rules from implicit neural representations
+- **Model Debugging**: Visualize decision boundaries as state machines
 
-A simple RNN implementation that can be trained on regular language patterns:
+## 🚀 Quick Start
 
-- **SimpleRNN**: PyTorch-based LSTM network for binary string classification
-- **DummyRNN**: Wrapper class providing training and querying functionality
-- Supports training on regex patterns and querying individual strings
-
-### 2. RNN Membership Oracle (`RNNMembershipOracle.py`)
-
-Adapts trained RNNs to work with the L* framework:
-
-- **RNNMembershipOracle**: Basic oracle that queries the RNN
-- **AnalyzingRNNMembershipOracle**: Extended version with logging and statistics
-
-### 3. Complete Example (`rnn_example.py`)
-
-Demonstrates the full pipeline:
-1. Train RNN on a pattern (e.g., "contains substring '01'")
-2. Use L* algorithm to learn DFA from RNN
-3. Compare learned DFA with original pattern
-4. Analyze query statistics and model accuracy
-
-## Usage
-
-### Basic Example
-
-```python
-from DummyRNN import DummyRNN
-from RNNMembershipOracle import RNNMembershipOracle
-from EquivalenceOracle import WMethodEquivalenceOracle
-from LStarLearner import LStarLearner
-
-# Train RNN on a pattern
-alphabet = ["0", "1"]
-pattern = r'^(0|1)*01(0|1)*$'  # Contains "01"
-rnn = DummyRNN(alphabet, pattern)
-
-# Set up L* framework
-membership_oracle = RNNMembershipOracle(rnn)
-equivalence_oracle = WMethodEquivalenceOracle(membership_oracle, alphabet)
-learner = LStarLearner(alphabet, membership_oracle, equivalence_oracle)
-
-# Learn DFA from RNN
-learned_dfa = learner.run()
-```
-
-### Running the Complete Example
-
+### Installation
 ```bash
-python rnn_example.py
-```
-
-This will:
-- Train an RNN on the pattern "binary strings containing '01'"
-- Use L* to extract a DFA from the trained RNN
-- Compare the learned DFA with the original pattern
-- Display statistics about the learning process
-
-## Key Features
-
-### RNN Training
-- Automatic training data generation from regex patterns
-- Configurable training parameters (epochs, hidden size, etc.)
-- Support for binary classification of strings
-
-### L* Integration
-- RNN queries are seamlessly integrated with existing L* framework
-- W-method equivalence checking for robust DFA extraction
-- Query logging and analysis capabilities
-
-### Analysis Tools
-- Model comparison between learned DFA and original pattern
-- Query statistics (count, accuracy, confidence scores)
-- Visualization of learned DFA structure
-
-## Expected Output
-
-When running the example, you should see:
-
-1. **RNN Training**: Progress of neural network training on the target pattern
-2. **L* Execution**: Step-by-step learning process with hypothesis generation
-3. **Query Statistics**: Number of queries, acceptance rates, confidence scores
-4. **Model Comparison**: Accuracy of learned DFA vs. original pattern
-5. **Detailed Tests**: Per-string comparison between DFA, RNN, and original pattern
-
-## Technical Details
-
-### Pattern Recognition
-The dummy RNN is designed to learn simple regular patterns like:
-- Substring containment (e.g., contains "01")
-- Prefix/suffix patterns
-- Length constraints
-- Alternation patterns
-
-### Query Efficiency
-The W-method equivalence oracle is configured to balance thoroughness with efficiency:
-- `max_prefix_len=3`: Tests transition sequences up to length 3
-- `max_suffix_len=4`: Uses distinguishing suffixes up to length 4
-- Typically requires 50-200 queries for simple patterns
-
-### Accuracy Considerations
-- RNN training quality affects the learnability of patterns
-- Some patterns may require more training data or different architectures
-- The L* algorithm will learn the best DFA approximation of the RNN's behavior
-
-## Future Extensions
-
-This framework can be extended to:
-- More complex RNN architectures (GRU, Transformer)
-- Multi-class classification (beyond binary acceptance)
-- Real-world trained RNNs (sentiment analysis, language models)
-- Different alphabet sizes and string types
-- Online learning scenarios where the RNN continues to train
-
-## Dependencies
-
-Install required packages:
-```bash
+git clone <repository-url>
+cd Lstar
 pip install -r requirements.txt
 ```
 
-Required packages:
-- PyTorch (neural network implementation)
-- NumPy (numerical operations)
-- Graphviz (DFA visualization)
-- Matplotlib (plotting and visualization) 
+### Basic Usage
+```bash
+# Extract DFA from any PyTorch model
+python lstar_cli/lstar_extract.py \
+  --model-type pytorch \
+  --model-path your_model.pth \
+  --model-class YourRNNClass \
+  --alphabet "01" \
+  --output learned_dfa.png
+
+# Extract DFA from a custom Python function
+python lstar_cli/lstar_extract.py \
+  --model-type function \
+  --model-path classifier.py \
+  --function-name my_classifier \
+  --alphabet "abc" \
+  --output dfa.png
+
+# Extract DFA from any Hugging Face model
+python lstar_cli/lstar_extract.py \
+  --model-type huggingface \
+  --model-name bert-base-uncased \
+  --alphabet "abcdefghijklmnopqrstuvwxyz " \
+  --output sentiment_automaton.png
+```
+
+## 🔧 Supported RNN Types
+
+The CLI tool works with **any** RNN implementation through flexible adapters:
+
+### 1. PyTorch Models
+- **LSTM, GRU, RNN**: Any PyTorch recurrent architecture
+- **Custom Models**: Your own neural network implementations
+- **Pretrained Models**: Load from `.pth` files with custom parameters
+
+```bash
+python lstar_cli/lstar_extract.py \
+  --model-type pytorch \
+  --model-path model.pth \
+  --model-class MyLSTM \
+  --model-kwargs '{"hidden_size": 128, "num_layers": 2}' \
+  --alphabet "01" \
+  --output dfa.png
+```
+
+### 2. Custom Functions
+- **Any Python Function**: Turn any classification function into an "RNN"
+- **Legacy Code**: Extract patterns from existing rule-based systems
+- **Hybrid Models**: Combine neural and symbolic approaches
+
+```bash
+python lstar_cli/lstar_extract.py \
+  --model-type function \
+  --model-path my_classifier.py \
+  --function-name predict_sentiment \
+  --alphabet "abcdefghijklmnopqrstuvwxyz .,!?" \
+  --output sentiment_dfa.png
+```
+
+### 3. Hugging Face Models
+- **Transformers**: BERT, GPT, RoBERTa, and more
+- **Sequence Classification**: Any HF model for text classification
+- **Custom Tokenization**: Automatic handling of model vocabularies
+
+```bash
+python lstar_cli/lstar_extract.py \
+  --model-type huggingface \
+  --model-name distilbert-base-uncased \
+  --alphabet "hello world the quick brown fox" \
+  --output transformer_dfa.png
+```
+
+## ⚙️ CLI Options
+
+### Core Arguments
+- `--model-type`: `pytorch`, `function`, or `huggingface`
+- `--alphabet`: Input alphabet as string (`"abc"`) or JSON list (`["a","b","c"]`)
+- `--output`: Output file (`.png` for visualization, `.dot` for graphviz)
+
+### PyTorch Specific
+- `--model-path`: Path to `.pth` model file
+- `--model-class`: Python class name of your model
+- `--model-module`: Python file containing the model class
+- `--model-kwargs`: JSON string of model constructor arguments
+- `--device`: `cpu` or `cuda` for GPU acceleration
+
+### Function Specific
+- `--model-path`: Path to `.py` file containing your function
+- `--function-name`: Name of the prediction function
+
+### Hugging Face Specific
+- `--model-name`: HuggingFace model identifier
+- `--model-path`: Local path to HuggingFace model
+
+### L* Algorithm Tuning
+- `--threshold`: Classification threshold (default: 0.5)
+- `--max-prefix-len`: Maximum prefix length for exploration (default: 3)
+- `--max-suffix-len`: Maximum suffix length for testing (default: 4)
+- `--verbose`: Enable detailed learning statistics
+
+### Testing & Debugging
+- `--test-strings`: Comma-separated test inputs to evaluate
+- `--verbose`: Show query statistics and learning progress
+
+## 📊 Example Workflows
+
+### 1. Sentiment Analysis Model
+```bash
+# Extract DFA from a sentiment classifier
+python lstar_cli/lstar_extract.py \
+  --model-type pytorch \
+  --model-path sentiment_lstm.pth \
+  --model-class SentimentLSTM \
+  --alphabet "abcdefghijklmnopqrstuvwxyz .,!?" \
+  --test-strings "good,bad,excellent,terrible" \
+  --verbose \
+  --output sentiment_rules.png
+```
+
+### 2. Sequence Pattern Recognition
+```bash
+# Learn patterns from a sequence classifier
+python lstar_cli/lstar_extract.py \
+  --model-type function \
+  --model-path pattern_detector.py \
+  --function-name detect_pattern \
+  --alphabet "01" \
+  --test-strings "01,10,0011,1100,010101" \
+  --output pattern_automaton.png
+```
+
+### 3. Language Model Analysis
+```bash
+# Extract decision patterns from a transformer
+python lstar_cli/lstar_extract.py \
+  --model-type huggingface \
+  --model-name gpt2 \
+  --alphabet "the and or but" \
+  --max-prefix-len 4 \
+  --max-suffix-len 5 \
+  --verbose \
+  --output language_patterns.png
+```
+
+## 🔬 Understanding the Output
+
+The tool generates:
+
+1. **DFA Visualization** (`.png`): State machine diagram showing:
+   - States as circles (accepting states are double-circled)
+   - Transitions labeled with alphabet symbols
+   - Clear visual representation of learned patterns
+
+2. **Graphviz Source** (`.dot`): Text representation for custom styling
+
+3. **Learning Statistics** (with `--verbose`):
+   - Number of queries made to the RNN
+   - Learning time and efficiency metrics
+   - Confidence distributions and pattern analysis
+
+## 🏗️ Architecture
+
+```
+Lstar/
+├── lstar_cli/           # 🎯 Main CLI tool
+│   └── lstar_extract.py # Universal RNN→DFA extractor
+├── lstar/               # Core L* algorithm
+├── rnn_adapters/        # Universal RNN interfaces
+├── examples/            # Usage examples
+└── docs/               # Documentation
+```
+
+## 🔧 Advanced Usage
+
+### Custom Model Integration
+Create your own model adapter:
+
+```python
+# my_custom_model.py
+def my_classifier(text):
+    # Your classification logic here
+    return confidence_score  # 0.0 to 1.0
+
+# Use with CLI:
+python lstar_cli/lstar_extract.py \
+  --model-type function \
+  --model-path my_custom_model.py \
+  --function-name my_classifier \
+  --alphabet "your_alphabet" \
+  --output custom_dfa.png
+```
+
+### Batch Processing
+Process multiple models:
+
+```bash
+# Extract DFAs from multiple models
+for model in model1.pth model2.pth model3.pth; do
+  python lstar_cli/lstar_extract.py \
+    --model-type pytorch \
+    --model-path $model \
+    --model-class MyRNN \
+    --alphabet "01" \
+    --output ${model%.pth}_dfa.png
+done
+```
+
+### Performance Tuning
+Optimize for your use case:
+
+```bash
+# Fast extraction (fewer queries)
+python lstar_cli/lstar_extract.py \
+  --max-prefix-len 2 \
+  --max-suffix-len 3 \
+  [other options...]
+
+# Thorough extraction (more accurate)
+python lstar_cli/lstar_extract.py \
+  --max-prefix-len 5 \
+  --max-suffix-len 6 \
+  [other options...]
+```
+
+## 📚 Documentation
+
+- **[CLI Guide](docs/CLI_README.md)**: Complete command-line reference
+- **[Integration Guide](docs/USER_GUIDE.md)**: Adding custom RNN types
+- **[Architecture](docs/README_Architecture.md)**: Technical implementation details
+
+## 🎓 Research Applications
+
+This tool enables research in:
+- **Neural Network Interpretability**: Understanding learned representations
+- **Formal Verification**: Converting NNs to verifiable models
+- **Model Compression**: Extracting minimal equivalent automata
+- **Educational**: Teaching automata theory through neural networks
+
+## 🤝 Contributing
+
+Add support for new RNN frameworks:
+1. Implement adapter in `rnn_adapters/`
+2. Add CLI integration in `lstar_cli/lstar_extract.py`
+3. Update documentation
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📞 Support
+
+- **CLI Help**: `python lstar_cli/lstar_extract.py --help`
+- **Examples**: See `examples/usage/` for working demos
+- **Issues**: Report bugs and feature requests via GitHub issues
+
+---
+
+**Transform any RNN into an interpretable automaton with a single command!** 

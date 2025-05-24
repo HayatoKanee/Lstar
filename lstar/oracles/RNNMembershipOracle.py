@@ -1,5 +1,5 @@
-from DummyRNN import DummyRNN
-from MembershipOracle import MembershipOracle
+from rnn_adapters import DummyRNN
+from .MembershipOracle import MembershipOracle
 from typing import List
 
 

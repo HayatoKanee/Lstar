@@ -3,8 +3,8 @@ from collections import deque
 from itertools import product
 from typing import List, Set
 
-from DFA import DFA
-from MembershipOracle import MembershipOracle
+from .DFA import DFA
+from .oracles.MembershipOracle import MembershipOracle
 
 # --- Abstract Equivalence Oracle ---
 class EquivalenceOracle(ABC):
