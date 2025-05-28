@@ -319,7 +319,7 @@ poetry.toml
 # LSP config files
 pyrightconfig.json
 
-.idea/# End of https://www.toptal.com/developers/gitignore/api/macos,python,pycharm# L* Algorithm Generated Files# DFA visualization outputslearned_dfa*.pnglearned_dfa*.svglearned_dfa*.pdflearned_dfalearned_dfa_*!learned_dfa.md  # Keep any documentation files# Model outputs and logs*.model*.checkpoint# RNN/PyTorch model files*.pth*.pt
+.idea/
 # L* Algorithm Generated Files
 # DFA visualization outputs
 learned_dfa*.png
@@ -336,19 +336,3 @@ learned_dfa_*
 # RNN/PyTorch model files
 *.pth
 *.pt
-# L* Algorithm Generated Files
-# DFA visualization outputs
-learned_dfa*.png
-learned_dfa*.svg
-learned_dfa*.pdf
-learned_dfa
-learned_dfa_*
-!learned_dfa.md
-
-# Model outputs and logs
-*.model
-*.checkpoint
-
-# RNN/PyTorch model files
-*.pth
-*.pt 
